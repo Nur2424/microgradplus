@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "microgradplus"
+version = "0.1.0"
+description = "A tiny scalar autograd engine and neural network library, built from scratch in pure Python."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+    { name = "Your Name" }
+]
+keywords = ["autograd", "neural-networks", "backpropagation", "deep-learning", "education"]
+dependencies = []
+
+[project.optional-dependencies]
+examples = [
+    "numpy",
+    "matplotlib",
+    "scikit-learn",
+]
+viz = [
+    "graphviz",
+]
+dev = [
+    "pytest",
+    "torch",
+]
+
+[tool.setuptools.packages.find]
+include = ["microgradplus*"]

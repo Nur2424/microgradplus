@@ -1,0 +1,9 @@
+# Core library (microgradplus/) has zero dependencies — pure Python.
+# These are needed only to run the examples, tests, and notebook.
+
+numpy
+matplotlib
+scikit-learn
+pytest
+torch
+graphviz

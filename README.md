@@ -1,13 +1,11 @@
 # micrograd+
 
 A tiny scalar-valued autograd engine and neural network library, built from
-scratch in pure Python — extended from
-[Andrej Karpathy's micrograd](https://github.com/karpathy/micrograd) and his
-*Neural Networks: Zero to Hero* series.
+scratch in pure Python
 
 The core library (`microgradplus/`) has **zero dependencies**. Every gradient
-is computed by hand-written reverse-mode automatic differentiation over a
-dynamically-built computation graph — no NumPy, no PyTorch. The goal is that
+is computed by hand written reverse mode automatic differentiation over a
+dynamically built computation graph no NumPy, no PyTorch. The goal is that
 nothing inside `loss.backward()` is mysterious.
 
 ```
@@ -27,7 +25,7 @@ microgradplus/
 ├── training.py   # fit() / predict() training loop
 └── viz.py        # computation graph visualization (graphviz)
 
-tests/            # 44 tests — every gradient checked vs PyTorch + finite differences
+tests/            # 44 tests every gradient checked vs PyTorch + finite differences
 examples/         # two end-to-end demos with generated plots
 notebooks/        # the original derivation notebook (study notes)
 ```
@@ -72,11 +70,11 @@ print(a.grad, b.grad, c.grad)
 ```
 
 Each operator (`+`, `*`, `**`, `exp`, `log`) and activation (`tanh`,
-`sigmoid`, `relu`, `leaky_relu`) attaches a closure — its **local
-derivative rule** — to the output node. `.backward()` builds a reverse
+`sigmoid`, `relu`, `leaky_relu`) attaches a closure its **local
+derivative rule** to the output node. `.backward()` builds a reverse
 topological ordering of the graph via DFS and calls each node's local rule
 in reverse order, accumulating gradients with `+=` (the multivariate chain
-rule across multiple paths — the same accumulation property that motivates
+rule across multiple paths the same accumulation property that motivates
 `optimizer.zero_grad()`).
 
 | micrograd+ concept | PyTorch equivalent |
@@ -131,7 +129,7 @@ pytest -v
 
 ## Examples
 
-### 1. Binary classification — two moons (`examples/classification_moons.py`)
+### 1. Binary classification two moons (`examples/classification_moons.py`)
 
 An MLP with ReLU hidden units (He init) and a sigmoid output, trained with
 Adam and binary cross-entropy on `sklearn.datasets.make_moons`.
@@ -144,7 +142,7 @@ Test accuracy: **0.95**
 |---|---|
 | ![loss](examples/moons_loss_curve.png) | ![boundary](examples/moons_decision_boundary.png) |
 
-### 2. Regression — fitting `sin(3x)` (`examples/regression_sgd_vs_adam.py`)
+### 2. Regression fitting `sin(3x)` (`examples/regression_sgd_vs_adam.py`)
 
 Two structurally identical MLPs (same seed, same architecture), one trained
 with plain SGD and one with Adam, on a noisy `y = sin(3x)` dataset — isolating
@@ -175,11 +173,11 @@ schemes, and optimizers.
 ## What this is not
 
 This is a learning/portfolio project, not a production framework. There's no
-vectorization (everything is scalar `Value`s — an MLP forward pass is O(number
+vectorization (everything is scalar `Value`s an MLP forward pass is O(number
 of weights) Python function calls), no GPU support, and no batching beyond
-simple Python loops. The engineering that PyTorch adds on top — vectorized
+simple Python loops. The engineering that PyTorch adds on top vectorized
 tensors, fused kernels, an iterative (not recursive) topological sort, gradient
-checkpointing — is real and substantial. The point here is that the
+checkpointing is real and substantial. The point here is that the
 *mathematical content* underneath all of that is exactly this.
 
 ## Possible next steps

@@ -9,7 +9,7 @@ dynamically built computation graph no NumPy, no PyTorch. The goal is that
 nothing inside `loss.backward()` is mysterious.
 
 ```
-git clone <your-repo-url>
+git clone <https://github.com/Nur2424/microgradplus/tree/main>
 cd microgradplus
 pip install -e .
 ```

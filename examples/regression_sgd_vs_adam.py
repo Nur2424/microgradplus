@@ -64,7 +64,7 @@ def main():
     ax.set_yscale("log")
     ax.set_xlabel("epoch")
     ax.set_ylabel("MSE loss")
-    ax.set_title("SGD vs Adam — fitting y = sin(3x) + noise")
+    ax.set_title("SGD vs Adam fitting y = sin(3x) + noise")
     ax.legend()
     ax.grid(alpha=0.3)
     fig.tight_layout()

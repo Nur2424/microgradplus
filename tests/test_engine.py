@@ -1,9 +1,9 @@
 """
-Tests for the core autograd engine.
+Tests for the core autograd engine
 
 Two complementary checks for every gradient claim:
-  1. Compare against PyTorch's autograd on the same expression.
-  2. Compare against a finite-difference numerical derivative.
+  - Compare against PyTorch's autograd on the same expression
+  - Compare against a finite-difference numerical derivative
 """
 
 import math
@@ -110,7 +110,7 @@ def test_leaky_relu_negative_branch():
 
 def test_tanh_decomposed_matches_atomic_tanh():
     """tanh built from exp/+/-// should give identical gradients to the
-    atomic tanh implementation — i.e. no operation is privileged."""
+    atomic tanh implementation i.e. no operation is privileged."""
     x1, w1 = Value(2.0), Value(-3.0)
 
     n1 = x1 * w1
@@ -130,7 +130,7 @@ def test_tanh_decomposed_matches_atomic_tanh():
 
 def test_finite_difference_matches_backward():
     """Sanity check: d/dx of f(x) = (x^2 + 3) * tanh(x) at x=1.2,
-    via backward() vs central finite differences."""
+    via backward() vs central finite differences"""
 
     def f(x):
         return (x ** 2 + 3) * math.tanh(x)
@@ -148,7 +148,7 @@ def test_finite_difference_matches_backward():
 
 def test_mlp_neuron_gradient_vs_pytorch():
     """End-to-end check on a single tanh neuron, mirroring section 12 of
-    the notebook."""
+    the notebook"""
     x1v, x2v = 2.0, 0.0
     w1v, w2v, bv = -3.0, 1.0, 6.8813735870195432
 

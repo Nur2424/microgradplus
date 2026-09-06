@@ -54,7 +54,7 @@ def test_bce_loss_matches_pytorch():
 
 
 def test_bce_loss_gradient_is_pred_minus_true_at_logit():
-    """The canonical result: d(BCE)/d(logit) = (p - y) / N."""
+    """The canonical result d(BCE)/d(logit) = (p - y) / N"""
     logits = [1.0, -2.0]
     targets = [1.0, 0.0]
     n = len(logits)

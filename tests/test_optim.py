@@ -36,7 +36,7 @@ def test_sgd_momentum_accumulates_velocity():
 
 
 def test_adam_reduces_simple_quadratic_loss():
-    """Optimizing f(x) = (x - 3)^2 with Adam should converge toward x=3."""
+    """Optimizing f(x) = (x - 3)^2 with Adam should converge toward x=3"""
     x = Value(0.0)
     opt = Adam([x], lr=0.1)
 

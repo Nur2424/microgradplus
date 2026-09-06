@@ -1,14 +1,14 @@
 """
-test_softmax_cce.py — correctness tests for softmax + categorical cross-entropy.
+test_softmax_cce.py correctness tests for softmax + categorical cross-entropy
 
 Every gradient is verified two ways:
-1. Against PyTorch's autograd on identical expressions.
-2. Against finite-difference numerical derivatives.
+ - Against PyTorch's autograd on identical expressions
+ - Against finite-difference numerical derivatives 
 
 Tests:
     test_softmax_probabilities_sum_to_one
     test_softmax_gradients_match_pytorch
-    test_softmax_gradient_is_p_minus_y           ← the key algebraic identity
+    test_softmax_gradient_is_p_minus_y           <= the key algebraic identity
     test_cce_loss_matches_pytorch
     test_cce_gradient_matches_pytorch
     test_cce_gradient_is_p_minus_y_full_batch
@@ -22,42 +22,38 @@ import math
 import random
 import pytest
 
-# ── micrograd+ ────────────────────────────────────────────────────────────────
+# ----- micrograd+ ------
 from microgradplus.engine import Value
 from microgradplus.losses import categorical_cross_entropy
 from microgradplus.nn import MLPClassifier
 from microgradplus.optim import Adam
 from microgradplus.training import fit
 
-# ── PyTorch (for reference) ───────────────────────────────────────────────────
+# ----- PyTorch for reference -----
 import torch
 import torch.nn.functional as F
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Helpers
-# ─────────────────────────────────────────────────────────────────────────────
+# ----- Helpers -----
 
 def _value_logits(data):
-    """Create a list of Value logits from a list of floats."""
+    """Create a list of Value logits from a list of floats"""
     return [Value(d) for d in data]
 
 
 def _torch_logits(data):
-    """Create a torch tensor of logits with grad tracking."""
+    """Create a torch tensor of logits with grad tracking"""
     return torch.tensor(data, dtype=torch.float64, requires_grad=True)
 
 
 def finite_diff_grad(fn, x_list, idx, eps=1e-5):
-    """Numerically estimate df/dx[idx] using central differences."""
+    """Numerically estimate df/dx[idx] using central differences"""
     x_plus = [v + (eps if i == idx else 0.0) for i, v in enumerate(x_list)]
     x_minus = [v - (eps if i == idx else 0.0) for i, v in enumerate(x_list)]
     return (fn(x_plus) - fn(x_minus)) / (2 * eps)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 1. Softmax probabilities
-# ─────────────────────────────────────────────────────────────────────────────
+# ----- 1 Softmax probabilities -----
 
 def test_softmax_probabilities_sum_to_one():
     logits = _value_logits([2.0, 1.0, 0.1])
@@ -74,12 +70,11 @@ def test_softmax_values_match_pytorch():
         assert abs(p.data - tp.item()) < 1e-9
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 2. Softmax gradients via backward
-# ─────────────────────────────────────────────────────────────────────────────
+
+# ----- 2 Softmax gradients via backward -----
 
 def test_softmax_gradients_match_pytorch():
-    """d(sum(probs * weights)) / d(logit_i) matches PyTorch."""
+    """d(sum(probs * weights)) / d(logit_i) matches PyTorch"""
     data = [2.0, 1.0, 0.1]
     weights = [3.0, -1.0, 0.5]   # arbitrary output weights
 
@@ -101,12 +96,10 @@ def test_softmax_gradients_match_pytorch():
         assert abs(mg - pt) < 1e-7, f"grad mismatch: mg={mg:.6f} pt={pt:.6f}"
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 3. The key identity: dL/dz_i = p_i - y_i
-# ─────────────────────────────────────────────────────────────────────────────
+# ----- 3 The key identity: dL/dz_i = p_i - y_i -----
 
 def test_softmax_gradient_is_p_minus_y():
-    """For CE loss on a single sample, dL/dz_i == p_i - y_i exactly."""
+    """For CE loss on a single sample, dL/dz_i == p_i - y_i exactly"""
     data = [2.0, 1.0, 0.1]
     true_class = 0  # y = [1, 0, 0]
 
@@ -124,12 +117,12 @@ def test_softmax_gradient_is_p_minus_y():
         )
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 4. CCE loss value matches PyTorch
-# ─────────────────────────────────────────────────────────────────────────────
+
+# ----- 4 CCE loss value matches PyTorch -----
+
 
 def test_cce_loss_matches_pytorch():
-    """Loss value == PyTorch CrossEntropyLoss on the same inputs."""
+    """Loss value == PyTorch CrossEntropyLoss on the same inputs"""
     batch = [[2.0, 1.0, 0.1], [0.5, 2.5, 0.3], [-1.0, 0.0, 3.0]]
     targets = [0, 1, 2]
 
@@ -148,7 +141,7 @@ def test_cce_loss_matches_pytorch():
 
 
 def test_cce_gradient_matches_pytorch():
-    """CCE gradients w.r.t. every logit match PyTorch exactly."""
+    """CCE gradients w.r.t. every logit match PyTorch exactly"""
     batch = [[2.0, 1.0, 0.1], [0.5, 2.5, 0.3]]
     targets = [0, 1]
 
@@ -172,12 +165,11 @@ def test_cce_gradient_matches_pytorch():
             )
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 5. p_i - y_i identity over full batch (mean CCE)
-# ─────────────────────────────────────────────────────────────────────────────
+# ----- 5 p_i - y_i identity over full batch (mean CCE) ------
+
 
 def test_cce_gradient_is_p_minus_y_full_batch():
-    """dL/dz_{n,i} == (p_{n,i} - y_{n,i}) / N for mean CCE loss."""
+    """dL/dz_{n,i} == (p_{n,i} - y_{n,i}) / N for mean CCE loss"""
     batch = [[2.0, 1.0, 0.1], [0.5, 2.5, 0.3], [-1.0, 0.0, 3.0]]
     targets = [0, 1, 2]
     N = len(batch)
@@ -196,12 +188,10 @@ def test_cce_gradient_is_p_minus_y_full_batch():
             )
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 6. Finite-difference checks
-# ─────────────────────────────────────────────────────────────────────────────
+# ------ 6 Finite-difference checks -----
 
 def test_finite_difference_softmax():
-    """Finite-difference verification of softmax gradients."""
+    """Finite-difference verification of softmax gradients"""
     data = [1.5, -0.5, 2.0]
     weights = [1.0, -2.0, 0.5]
 
@@ -223,7 +213,7 @@ def test_finite_difference_softmax():
 
 
 def test_finite_difference_cce():
-    """Finite-difference verification of CCE gradients."""
+    """Finite-difference verification of CCE gradients"""
     data = [2.0, 0.5, -1.0]
     k = 1
 
@@ -243,12 +233,11 @@ def test_finite_difference_cce():
         )
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 7. MLPClassifier integration tests
-# ─────────────────────────────────────────────────────────────────────────────
+# ------ 7 MLPClassifier integration tests ------
+
 
 def test_mlpclassifier_forward_shape():
-    """MLPClassifier returns a list of n_classes Values per sample."""
+    """MLPClassifier returns a list of n_classes Values per sample """
     random.seed(0)
     model = MLPClassifier(nin=4, hidden=[8], n_classes=3)
     x = [0.5, -0.3, 1.2, 0.0]
@@ -258,9 +247,9 @@ def test_mlpclassifier_forward_shape():
 
 
 def test_mlpclassifier_training_reduces_loss():
-    """Training for 50 epochs on a 3-class toy dataset reduces the loss."""
+    """Training for 50 epochs on a 3-class toy dataset reduces the loss """
     random.seed(42)
-    # XOR-like 3-class toy: 3 groups of 4 points
+    # XOR-like 3-class toy 3 groups of 4 points
     X = [
         [1.0, 1.0], [1.1, 0.9], [0.9, 1.1], [1.0, 1.0],  # class 0
         [-1.0, 1.0], [-1.1, 0.9], [-0.9, 1.1], [-1.0, 1.0],  # class 1

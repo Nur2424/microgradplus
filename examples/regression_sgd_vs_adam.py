@@ -1,6 +1,4 @@
 """
-examples/regression_sgd_vs_adam.py
-
 A small 1D regression problem: fit y = sin(3x) + small noise.
 
 Compares plain SGD vs Adam, both training the same MLP architecture from
@@ -59,7 +57,7 @@ def main():
     history_adam = fit(model_adam, opt_adam, mse_loss, X, y,
                         epochs=150, batch_size=None, log_every=50)
 
-    # ---- Plot 1: loss curves ----
+    # ---- Plot 1 loss curves ----
     fig, ax = plt.subplots(figsize=(6, 4))
     ax.plot(history_sgd, label="SGD (lr=0.05)")
     ax.plot(history_adam, label="Adam (lr=0.02)")
@@ -73,7 +71,7 @@ def main():
     fig.savefig("examples/regression_loss_curves.png", dpi=150)
     plt.close(fig)
 
-    # ---- Plot 2: fitted functions ----
+    # ---- Plot 2 fitted functions ----
     xs_dense = np.linspace(-2, 2, 200)
     X_dense = [[float(x)] for x in xs_dense]
     preds_sgd = predict(model_sgd, X_dense)

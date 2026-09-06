@@ -1,14 +1,12 @@
 """
-examples/classification_moons.py
-
 Binary classification on the classic "two moons" dataset.
 
 This demonstrates the full micrograd+ pipeline on a non-trivial,
-non-linearly-separable problem: an MLP with ReLU hidden units, He
+non-linearly-separable problem: an MLP with ReLU hidden units,
 initialization, a sigmoid output, BCE loss, and Adam.
 
 scikit-learn and matplotlib are used ONLY for data generation and
-plotting — every gradient and parameter update is computed by
+plotting every gradient and parameter update is computed by
 microgradplus's pure-Python engine.
 """
 
@@ -71,18 +69,18 @@ def main():
     accuracy = np.mean(np.array(test_pred_labels) == y_test)
     print(f"\ntest accuracy: {accuracy:.3f}")
 
-    # ---- Plot 1: training loss curve ----
+    # ---- Plot 1 training loss curve ----
     fig, ax = plt.subplots(figsize=(6, 4))
     ax.plot(history)
     ax.set_xlabel("epoch")
     ax.set_ylabel("BCE loss")
-    ax.set_title("Training loss — two moons")
+    ax.set_title("Training loss two moons")
     ax.grid(alpha=0.3)
     fig.tight_layout()
     fig.savefig("examples/moons_loss_curve.png", dpi=150)
     plt.close(fig)
 
-    # ---- Plot 2: decision boundary ----
+    # ---- Plot 2 decision boundary ----
     fig, ax = plt.subplots(figsize=(6, 5))
 
     x_min, x_max = X[:, 0].min() - 0.5, X[:, 0].max() + 0.5
@@ -104,7 +102,7 @@ def main():
         X_test[:, 0], X_test[:, 1], c=y_test, cmap="RdBu",
         edgecolors="k", s=60, marker="^", label="test"
     )
-    ax.set_title(f"Decision boundary — two moons (test acc = {accuracy:.2f})")
+    ax.set_title(f"Decision boundary two moons (test acc = {accuracy:.2f})")
     ax.legend()
     fig.tight_layout()
     fig.savefig("examples/moons_decision_boundary.png", dpi=150)

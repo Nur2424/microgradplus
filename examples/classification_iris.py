@@ -1,8 +1,8 @@
 """
-classification_iris.py — 3-class classification on the Iris dataset.
+3-class classification on the Iris dataset.
 
 What this demonstrates:
-  - MLPClassifier with ReLU hidden layers (He init)
+  - MLPClassifier with ReLU hidden layers
   - Categorical cross-entropy loss (softmax applied inside the loss)
   - Adam optimizer
   - Decision regions visualization for the first two features
@@ -29,7 +29,7 @@ from microgradplus.training import fit, predict_classes
 random.seed(42)
 np.random.seed(42)
 
-# ── Data ──────────────────────────────────────────────────────────────────────
+# ----------- Data ----------- 
 iris = load_iris()
 X_raw, y_raw = iris.data[:, :2], iris.target   # use first 2 features for 2-D plot
 
@@ -41,12 +41,12 @@ X_train, X_test, y_train, y_test = train_test_split(
     X_scaled, y_list, test_size=0.2, random_state=42, stratify=y_list
 )
 
-# ── Model ─────────────────────────────────────────────────────────────────────
+# ----------- Model -----------
 model = MLPClassifier(nin=2, hidden=[16, 16], n_classes=3,
                       activation="relu", init="he")
 opt = Adam(model.parameters(), lr=0.02)
 
-# ── Training ──────────────────────────────────────────────────────────────────
+# ----------- Training -----------
 history = fit(
     model, opt, categorical_cross_entropy,
     X_train, y_train,
@@ -54,7 +54,7 @@ history = fit(
     log_every=50, multiclass=True,
 )
 
-# ── Accuracy ──────────────────────────────────────────────────────────────────
+# ----------- Accuracy -----------
 y_pred_train = predict_classes(model, X_train)
 y_pred_test  = predict_classes(model, X_test)
 
@@ -62,14 +62,14 @@ train_acc = sum(p == t for p, t in zip(y_pred_train, y_train)) / len(y_train)
 test_acc  = sum(p == t for p, t in zip(y_pred_test,  y_test))  / len(y_test)
 print(f"\nTrain accuracy: {train_acc:.3f}   Test accuracy: {test_acc:.3f}")
 
-# ── Plots ─────────────────────────────────────────────────────────────────────
+# ----------- Plots -----------
 fig, axes = plt.subplots(1, 2, figsize=(13, 5))
 
 # Loss curve
 axes[0].plot(history, color="#2563EB", linewidth=1.5)
 axes[0].set_xlabel("Epoch")
 axes[0].set_ylabel("Mean CCE Loss")
-axes[0].set_title("Training Loss — Iris 3-class")
+axes[0].set_title("Training Loss of Iris 3-class")
 axes[0].grid(True, alpha=0.3)
 
 # Decision boundary
@@ -105,4 +105,4 @@ axes[1].grid(True, alpha=0.2)
 plt.tight_layout()
 outpath = "examples/iris_softmax_cce.png"
 plt.savefig(outpath, dpi=150)
-print(f"Saved → {outpath}")
+print(f"Saved => {outpath}")

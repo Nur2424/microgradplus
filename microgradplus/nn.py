@@ -1,11 +1,11 @@
 """
-nn.py — Neuron, Layer, MLP, and MLPClassifier built on top of engine.Value.
+nn.py Neuron, Layer, MLP, and MLPClassifier built on top of engine.Value
 
 New in this version:
-    MLPClassifier — an MLP whose final layer outputs C raw logits
+    MLPClassifier an MLP whose final layer outputs C raw logits
     (linear activation), designed to be used with categorical_cross_entropy.
     The number of output units equals the number of classes; pass logits
-    directly to categorical_cross_entropy — do not apply softmax in the
+    directly to categorical_cross_entropy do not apply softmax in the
     model forward pass (the loss function does it internally).
 """
 
@@ -51,7 +51,7 @@ def _init_weight(nin, scheme):
 
 
 class Neuron(Module):
-    """A single neuron: out = activation(w . x + b)."""
+    """A single neuron: out = activation(w . x + b)"""
 
     def __init__(self, nin, activation="tanh", init="uniform"):
         if activation not in _ACTIVATIONS:
@@ -75,7 +75,7 @@ class Neuron(Module):
 
 
 class Layer(Module):
-    """A layer of `nout` neurons, each seeing all `nin` inputs."""
+    """A layer of `nout` neurons, each seeing all `nin` inputs"""
 
     def __init__(self, nin, nout, activation="tanh", init="uniform"):
         self.neurons = [Neuron(nin, activation=activation, init=init) for _ in range(nout)]
@@ -96,7 +96,7 @@ class MLP(Module):
 
     Args:
         nin: number of input features.
-        nouts: list of layer widths, e.g. [16, 16, 1].
+        nouts: list of layer widths e.g. [16, 16, 1].
         activation: activation used by all hidden layers.
         out_activation: activation used by the final layer.
         init: weight initialization scheme.
@@ -178,7 +178,7 @@ class MLPClassifier(Module):
         return [p for layer in self.layers for p in layer.parameters()]
 
     def predict_class(self, x):
-        """Return the predicted class index (argmax over logits)."""
+        """Return the predicted class index (argmax over logits)"""
         logits = self(x)
         return max(range(len(logits)), key=lambda i: logits[i].data)
 

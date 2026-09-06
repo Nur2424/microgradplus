@@ -1,36 +1,36 @@
 """
-engine.py — a scalar-valued autograd engine.
+engine.py a scalar-valued autograd engine
 
-This is the core of micrograd+. A `Value` wraps a single Python float and
+This is the core of microgradplus. A `Value` wraps a single Python float and
 remembers the small computational graph that produced it. Calling
 `.backward()` on any `Value` runs reverse-mode automatic differentiation
 (backpropagation) over that graph, populating `.grad` on every node with
-the partial derivative of the output with respect to that node.
+the partial derivative of the output with respect to that node
 
-No NumPy, no PyTorch — pure Python, on purpose. The point of this module
-is that nothing inside `loss.backward()` should be mysterious.
+No NumPy, no PyTorch pure Python, on purpose. The point of this module
+is that nothing inside `loss.backward()` should be mysterious
 
 New in this version:
-    softmax(values) — class method on Value that takes a list of Value
+    softmax(values) class method on Value that takes a list of Value
     logits and returns a list of Value probabilities summing to 1.
     The backward pass is derived analytically (Jacobian of softmax),
     but because it is implemented through existing primitives (exp, log,
-    division) it gets correct gradients automatically via the chain rule.
+    division) it gets correct gradients automatically via the chain rule
 """
 
 import math
 
 
 class Value:
-    """A scalar value in an autograd computation graph.
+    """A scalar value in an autograd computation graph
 
     Attributes:
-        data: the scalar forward value.
-        grad: dL/d(this node), accumulated during backward().
-        _prev: parent nodes this value was computed from.
+        data: the scalar forward value
+        grad: dL/d(this node), accumulated during backward()
+        _prev: parent nodes this value was computed from
         _op: string label of the operation that produced this value
-            (used only for visualization/debugging).
-        label: optional human-readable name (used only for visualization).
+            (used only for visualization/debugging)
+        label: optional human-readable name (used only for visualization)
     """
 
     __slots__ = ("data", "grad", "_backward", "_prev", "_op", "label")
@@ -38,7 +38,7 @@ class Value:
     def __init__(self, data, _children=(), _op="", label=""):
         self.data = data
         self.grad = 0.0
-        self._backward = lambda: None  # default: no-op (leaf nodes)
+        self._backward = lambda: None  # default no-op (leaf nodes)
         self._prev = set(_children)
         self._op = _op
         self.label = label
@@ -46,9 +46,9 @@ class Value:
     def __repr__(self):
         return f"Value(data={self.data}, grad={self.grad})"
 
-    # ------------------------------------------------------------------
-    # Core ops with local backward rules
-    # ------------------------------------------------------------------
+    
+    # ----- Core ops with local backward rules -----
+    
 
     def __add__(self, other):
         other = other if isinstance(other, Value) else Value(other)
@@ -93,10 +93,10 @@ class Value:
         return out
 
     def log(self):
-        """Natural log. Used by cross-entropy losses.
+        """Natural log. Used by cross-entropy losses
 
         Note: undefined at x <= 0. Callers are expected to clamp
-        probabilities away from 0 before calling this.
+        probabilities away from 0 before calling this
         """
         x = self.data
         out = Value(math.log(x), (self,), "log")
@@ -107,9 +107,9 @@ class Value:
         out._backward = _backward
         return out
 
-    # ------------------------------------------------------------------
-    # Activation functions
-    # ------------------------------------------------------------------
+    
+    # ----- Activation functions -----
+    
 
     def tanh(self):
         x = self.data
@@ -142,10 +142,10 @@ class Value:
         return out
 
     def leaky_relu(self, alpha=0.01):
-        """Leaky ReLU: f(x) = x if x > 0 else alpha * x.
+        """Leaky ReLU: f(x) = x if x > 0 else alpha * x
 
         Avoids the "dead neuron" problem of plain ReLU by letting a small
-        gradient flow through for negative inputs.
+        gradient flow through for negative inputs
         """
         x = self.data
         out = Value(x if x > 0 else alpha * x, (self,), "LeakyReLU")
@@ -156,30 +156,30 @@ class Value:
         out._backward = _backward
         return out
 
-    # ------------------------------------------------------------------
-    # Softmax (class method — operates on a list of Value logits)
-    # ------------------------------------------------------------------
+    
+    # ----- Softmax (class method operates on a list of Value logits) -----
+    
 
     @staticmethod
     def softmax(logits):
-        """Numerically stable softmax over a list of Value logits.
+        """Numerically stable softmax over a list of Value logits
 
-        Returns a list of Value probabilities that sum to 1.
+        Returns a list of Value probabilities that sum to 1
 
         Implementation: subtract max(logits) before exp for numerical
         stability (prevents exp overflow). This does NOT change the output
         because the constant cancels in the division:
 
-            softmax(z_i) = exp(z_i - C) / sum_j exp(z_j - C)  for any C.
+            softmax(z_i) = exp(z_i - C) / sum_j exp(z_j - C)  for any C
 
         Gradients flow correctly through the exp / division primitives
-        already defined above — no new backward rule is needed here.
+        already defined above no new backward rule is needed here
 
         The gradient of the loss w.r.t. the input logit z_i, when using
         softmax + categorical cross-entropy, collapses to (p_i - y_i)
         where p_i is the predicted probability and y_i is the one-hot
         target. This is derived in the notebook; this implementation
-        produces exactly that via automatic differentiation.
+        produces exactly that via automatic differentiation
         """
         # Numerical stability: subtract max (constant w.r.t. gradient)
         max_val = max(v.data for v in logits)
@@ -200,11 +200,11 @@ class Value:
         probs = [e * (exp_sum ** -1) for e in exps]
         return probs
 
-    # ------------------------------------------------------------------
-    # Composed ops (built from the primitives above — no new backward
+    
+    # Composed ops (built from the primitives above no new backward
     # rules needed, which is itself a small proof that the primitives
     # are sufficient)
-    # ------------------------------------------------------------------
+    
 
     def __neg__(self):
         return self * -1
@@ -216,9 +216,7 @@ class Value:
         other = other if isinstance(other, Value) else Value(other)
         return self * other ** -1
 
-    # ------------------------------------------------------------------
-    # Reflected (right-hand-side) operators, e.g. 2 + value, 3 - value
-    # ------------------------------------------------------------------
+    # ----- Reflected (right-hand-side) operators, e.g. 2 + value, 3 - value -----
 
     def __radd__(self, other):
         return self + other
@@ -232,20 +230,19 @@ class Value:
     def __rtruediv__(self, other):
         return other * self ** -1
 
-    # ------------------------------------------------------------------
-    # Backward orchestrator
-    # ------------------------------------------------------------------
+    # ----- Backward orchestrator -----
 
     def backward(self):
-        """Run reverse-mode autodiff starting from this node.
+        """Run reverse-mode autodiff starting from this node
 
         Builds a topological ordering of the computation graph via DFS,
-        then walks it in reverse, calling each node's local `_backward`.
+        then walks it in reverse, calling each node's local `_backward`
+
         Because the chain rule sums contributions over every path from a
         node to the output, gradients are accumulated with `+=` inside
-        each `_backward` — visiting children only after all of a node's
+        each `_backward`  visiting children only after all of a node's
         consumers have contributed is exactly what the topological order
-        guarantees.
+        guarantees
         """
         topo = []
         visited = set()

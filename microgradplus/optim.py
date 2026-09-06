@@ -1,13 +1,13 @@
 """
-optim.py — parameter update rules.
+optim.py parameter update rules.
 
-Each optimizer wraps a list of `Value` parameters (typically
-`model.parameters()`) and implements `.step()`, which mutates `.data` in
-place using `.grad`, plus `.zero_grad()`.
+Each optimizer wraps a list of Value parameters (typically
+model.parameters()) and implements .step(), which mutates .data in
+place using .grad, plus .zero_grad().
 
 This is the direct analogue of the
-`for p in model.parameters(): p.data += -lr * p.grad` loop in the
-original notebook — generalized so the update rule is swappable.
+for p in model.parameters(): p.data += -lr * p.grad loop in the
+original notebook generalized so the update rule is swappable.
 """
 
 
@@ -26,8 +26,8 @@ class Optimizer:
 class SGD(Optimizer):
     """Vanilla stochastic gradient descent: p.data -= lr * p.grad.
 
-    With `momentum > 0`, accumulates an exponential moving average of
-    past gradients (the "velocity") and steps in that direction instead,
+    With momentum > 0, accumulates an exponential moving average of
+    past gradients (the velocity) and steps in that direction instead,
     which damps oscillations and speeds convergence in narrow valleys.
     """
 
@@ -47,12 +47,12 @@ class SGD(Optimizer):
 
 
 class Adam(Optimizer):
-    """Adam (Kingma & Ba, 2015).
+    """Adam (Kingma, Ba, 2015).
 
-    Maintains per-parameter running averages of the gradient (`m`, like
-    momentum) and the squared gradient (`v`, an estimate of the gradient's
+    Maintains per-parameter running averages of the gradient (m, like
+    momentum) and the squared gradient (v, an estimate of the gradient's
     variance), with bias correction for their initialization at zero.
-    The effective per-parameter step size is roughly `lr * m / sqrt(v)`,
+    The effective per-parameter step size is roughly lr * m / sqrt(v),
     which adapts to how noisy/large each parameter's gradient has been.
     """
 

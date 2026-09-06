@@ -1,4 +1,4 @@
-"""micrograd+ — scalar autograd engine and MLP library."""
+"""microgradplus scalar autograd engine and MLP library."""
 
 from .engine import Value
 from .nn import MLP, MLPClassifier, Layer, Neuron

@@ -1,14 +1,14 @@
 """
-viz.py — computation graph visualization, using graphviz.
+viz.py computation graph visualization, using graphviz.
 
-This is optional (requires the `graphviz` Python package and the
+This is optional (requires the "graphviz" Python package and the
 graphviz system binary). It's useful for sanity-checking small graphs by
-eye, exactly as in the original notebook.
+eye exactly as in the original notebook
 """
 
 
 def trace(root):
-    """Return (nodes, edges) reachable from `root` via `_prev`."""
+    """Return (nodes, edges) reachable from root via _prev"""
     nodes, edges = set(), set()
 
     def build(v):
@@ -23,11 +23,11 @@ def trace(root):
 
 
 def draw_dot(root, rankdir="LR"):
-    """Render the computation graph rooted at `root` as a graphviz Digraph.
+    """Render the computation graph rooted at `root` as a graphviz Digraph
 
     Each Value is drawn as a record node showing its label, data, and
     grad; each operation is drawn as a separate small node feeding into
-    its output.
+    its output
     """
     from graphviz import Digraph
 

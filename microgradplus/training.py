@@ -1,9 +1,9 @@
 """
-training.py — a small `fit` loop that ties together a model, a loss
-function, and an optimizer.
+training.py a small fit loop that ties together a model, a loss
+function, and an optimizer
 
 Updated to support multi-class models (MLPClassifier) where the model
-returns a list of C logits per sample instead of a single Value.
+returns a list of C logits per sample instead of a single Value
 """
 
 import random
@@ -12,28 +12,37 @@ from .engine import Value
 
 def fit(model, optimizer, loss_fn, X, y, epochs=100, batch_size=None,
         verbose=True, log_every=10, multiclass=False):
-    """Train `model` on data `(X, y)`.
+    """Train model on data (X, y)
 
     Args:
-        model: an MLP / MLPClassifier (anything with `.parameters()` and
-            `__call__`).
-        optimizer: an Optimizer instance wrapping `model.parameters()`.
-        loss_fn: a function `(ypred_list, ytrue_list) -> Value`.
+        - model: an MLP / MLPClassifier (anything with .parameters() and
+            __call__)
+
+        - optimizer: an Optimizer instance wrapping model.parameters()
+
+        - loss_fn: a function (ypred_list, ytrue_list) -> Value
             For multiclass=True, ypred_list is a list of lists of Values
-            (one inner list of C logits per sample).
-        X: list of input feature vectors (each a list of floats).
-        y: list of targets. Floats for regression/binary; int class
-            indices for multi-class (multiclass=True).
-        epochs: number of passes over the full dataset.
-        batch_size: if None, full-batch gradient descent. Otherwise,
-            mini-batch SGD.
-        verbose: print loss progress.
-        log_every: how often (in epochs) to print the loss.
-        multiclass: if True, the model returns a list of logits per
-            sample (used with categorical_cross_entropy).
+            (one inner list of C logits per sample)
+        
+        - X: list of input feature vectors (each a list of floats)
+
+        - y: list of targets. Floats for regression/binary; int class
+            indices for multi-class (multiclass=True)
+        
+        - epochs: number of passes over the full dataset
+
+        - batch_size: if None, full-batch gradient descent, Otherwise
+            mini-batch SGD
+        
+        - verbose: print loss progress
+
+        - log_every: how often (in epochs) to print the loss
+
+        - multiclass: if True, the model returns a list of logits per
+            sample (used with categorical_cross_entropy)
 
     Returns:
-        history: list of per-epoch mean loss values.
+        history: list of per-epoch mean loss values
     """
     n = len(X)
     history = []
@@ -79,7 +88,7 @@ def fit(model, optimizer, loss_fn, X, y, epochs=100, batch_size=None,
 
 
 def predict(model, X):
-    """Run the model on a list of inputs, returning plain floats or lists."""
+    """Run the model on a list of inputs, returning plain floats or lists"""
     out = []
     for x in X:
         yp = model(x)
@@ -91,5 +100,5 @@ def predict(model, X):
 
 
 def predict_classes(model, X):
-    """For MLPClassifier: return predicted class indices."""
+    """For MLPClassifier: return predicted class indices"""
     return [model.predict_class(x) for x in X]
